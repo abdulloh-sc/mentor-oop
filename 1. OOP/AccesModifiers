@@ -1,0 +1,260 @@
+# Java'da Access Modifikatorlari (Access Modifiers)
+
+## Access Modifikatorlari Nima?
+Java'da Access modifikatorlari class, xususiyat (field), metod yoki konstruktorning qaysi kontekstlarda ishlatilishi mumkinligini belgilaydi. Ular kodning xavfsizligini ta'minlash, ma'lumotlarni yashirish (encapsulation) va class a'zolarining ko'rinishini nazorat qilish uchun ishlatiladi. Java'da to'rtta Access modifikatori mavjud:
+1. `public`
+2. `protected`
+3. `default` (agar hech qanday modifikator ko'rsatilmasa)
+4. `private`
+
+## Access Modifikatorlarining Turlari
+
+### 1. `public`
+`public` modifikatori bilan belgilangan class, xususiyat, metod yoki konstruktor har qanday joydan (boshqa classlar, paketlar yoki modullar) foydalanilishi mumkin. Bu eng ochiq Access darajasidir.
+
+**Misol:**
+
+```java
+public class PublicClass {
+    public int number = 10;
+
+    public void display() {
+        System.out.println("Bu public metod: " + number);
+    }
+}
+
+class Main {
+    public static void main(String[] args) {
+        PublicClass obj = new PublicClass();
+        obj.display(); // Har qanday joydan chaqiriladi
+    }
+}
+```
+
+**Natija:**
+```
+Bu public metod: 10
+```
+
+**Tushuntirish:** `PublicClass` classi va uning `number` xususiyati hamda `display` metodi `public` bo'lgani uchun istalgan joydan foydalanilishi mumkin.
+
+### 2. `protected`
+`protected` modifikatori bilan belgilangan a'zolar o'z paketi ichida va boshqa paketlardagi subclasslar orqali foydalanilishi mumkin. Subclasslar `protected` a'zolarga faqat o'z ob'ektlari orqali emas, balki meros orqali Accesslari mumkin.
+
+**Misol:**
+
+```java
+package p1;
+
+public class Animal {
+    protected String name = "Hayvon";
+
+    protected void makeSound() {
+        System.out.println(name + " tovush chiqaradi.");
+    }
+}
+
+package p2;
+
+import p1.Animal;
+
+class Dog extends Animal {
+    void display() {
+        System.out.println("Itning ismi: " + name); // protected xususiyatga Access
+        makeSound(); // protected metodga Access
+    }
+}
+
+class Main {
+    public static void main(String[] args) {
+        Dog dog = new Dog();
+        dog.display();
+    }
+}
+```
+
+**Natija:**
+```
+Itning ismi: Hayvon
+Hayvon tovush chiqaradi.
+```
+
+**Tushuntirish:** `Dog` classi `Animal` classidan meros olib, uning `protected` xususiyati va metodiga kiradi. Agar `Dog` classi `Animal` classidan meros olmasa, `protected` a'zolarga tashqi paketdan Access imkonsiz bo'lardi.
+
+### 3. `default` (Paket ichidagi Access)
+Agar class, xususiyat, metod yoki konstruktor uchun hech qanday Access modifikatori ko'rsatilmasa, u `default` (yoki paket ichidagi) Access darajasiga ega bo'ladi. Bu holda, a'zolar faqat o'z paketidagi classlar tomonidan ishlatilishi mumkin.
+
+**Misol:**
+
+```java
+package p1;
+
+class DefaultClass {
+    String message = "Bu default xususiyat";
+
+    void show() {
+        System.out.println(message);
+    }
+}
+
+class Main {
+    public static void main(String[] args) {
+        DefaultClass obj = new DefaultClass();
+        obj.show(); // O'z paketida ishlaydi
+    }
+}
+```
+
+**Natija:**
+```
+Bu default xususiyat
+```
+
+**Tushuntirish:** `DefaultClass` va uning a'zolari `default` Access darajasiga ega, shuning uchun faqat `p1` paketidagi classlar ularga kira oladi. Agar boshqa paketdan kirmoqchi bo'lsak, xato yuzaga keladi.
+
+### 4. `private`
+`private` modifikatori bilan belgilangan a'zolar faqat o'z classi ichida ishlatilishi mumkin. Ular tashqi classlar yoki hatto subclasslar tomonidan ko'rinmaydi.
+
+**Misol:**
+
+```java
+class PrivateClass {
+    private int secret = 42;
+
+    private void revealSecret() {
+        System.out.println("Maxfiy raqam: " + secret);
+    }
+
+    public void accessSecret() {
+        revealSecret(); // private metodga class ichidan Access
+    }
+}
+
+class Main {
+    public static void main(String[] args) {
+        PrivateClass obj = new PrivateClass();
+        obj.accessSecret();
+        // obj.secret; // Xato: private xususiyatga tashqaridan Access mumkin emas
+    }
+}
+```
+
+**Natija:**
+```
+Maxfiy raqam: 42
+```
+
+**Tushuntirish:** `private` xususiyat va metod faqat `PrivateClass` ichida ishlatiladi. Tashqi classlar ularni to'g'ridan-to'g'ri ishlatolmaydi, lekin `public` metod orqali bilvosita Access mumkin.
+
+## Access Modifikatorlarining Taqqoslash Jadvali
+
+| Modifikator | class Ichida | Paket Ichida | Subclass (Boshqa Paket) | Tashqi Dunyo |
+|-------------|-------------|--------------|-------------------------|--------------|
+| `public`    | Ha          | Ha           | Ha                      | Ha           |
+| `protected` | Ha          | Ha           | Ha                      | Yo'q         |
+| `default`   | Ha          | Ha           | Yo'q                    | Yo'q         |
+| `private`   | Ha          | Yo'q         | Yo'q                    | Yo'q         |
+
+## Qo'shimcha Ma'lumotlar
+
+### 1. Ma'lumotlarni Yashirish (Encapsulation)
+Access modifikatorlari ma'lumotlarni yashirish (encapsulation) prinsipini amalga oshirishda muhim rol o'ynaydi. `private` modifikatori xususiyatlarni class ichida yashiradi, va ularga faqat `public` yoki `protected` getter/setter metodlari orqali Access imkoni beriladi.
+
+**Misol (Encapsulation):**
+
+```java
+class Person {
+    private String name;
+    private int age;
+
+    // Getter
+    public String getName() {
+        return name;
+    }
+
+    // Setter
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        if (age > 0) {
+            this.age = age;
+        }
+    }
+}
+
+class Main {
+    public static void main(String[] args) {
+        Person person = new Person();
+        person.setName("Ali");
+        person.setAge(25);
+        System.out.println("Ism: " + person.getName() + ", Yosh: " + person.getAge());
+    }
+}
+```
+
+**Natija:**
+```
+Ism: Ali, Yosh: 25
+```
+
+**Tushuntirish:** `name` va `age` xususiyatlari `private` bo'lib, ularga faqat getter va setter metodlari orqali Access mumkin. Bu ma'lumotlarni xavfsiz boshqarishni ta'minlaydi.
+
+### 2. classlarga `final` Modifikatori
+`final` kalit so'zi class yoki metodga qo'llanilganda, ularni meros qilib olish yoki qayta aniqlashni (override) oldini oladi. Bu Access modifikatorlari bilan birgalikda ishlatilishi mumkin.
+
+**Misol:**
+
+```java
+public final class FinalClass {
+    public void method() {
+        System.out.println("Bu metod qayta aniqlanmaydi.");
+    }
+}
+
+// class SubClass extends FinalClass { // Xato: final classdan meros olinmaydi
+// }
+```
+
+### 3. Konstruktorlarda Access Modifikatorlari
+Konstruktorlar ham Access modifikatorlariga ega bo'lishi mumkin. Masalan, `private` konstruktor class ob'ektlarini faqat class ichida yaratishga imkon beradi (masalan, Singleton dizayn patternida).
+
+**Misol (Singleton):**
+
+```java
+public class Singleton {
+    private static Singleton instance = null;
+
+    private Singleton() {
+        // Private konstruktor
+    }
+
+    public static Singleton getInstance() {
+        if (instance == null) {
+            instance = new Singleton();
+        }
+        return instance;
+    }
+}
+
+class Main {
+    public static void main(String[] args) {
+        Singleton s1 = Singleton.getInstance();
+        Singleton s2 = Singleton.getInstance();
+        System.out.println(s1 == s2); // true (bir xil ob'ekt)
+    }
+}
+```
+
+**Tushuntirish:** `private` konstruktor tufayli `Singleton` classidan faqat `getInstance` metodi orqali ob'ekt yaratiladi.
+
+### 4. Paketlar va Modullar
+Java'da paketlar va modullar (Java 9 dan boshlab) Accessni yanada nozik sozlash imkonini beradi. Masalan, `module-info.java` fayli orqali modullar ichidagi classlarni eksport qilish yoki cheklash mumkin.
+
+## Xulosa
+Access modifikatorlari Java'da kodning xavfsizligi, tashkiliyligi va ma'lumotlarni yashirishni ta'minlashda muhim rol o'ynaydi. `public`, `protected`, `default` va `private` modifikatorlari class va uning a'zolarining ko'rinish chegaralarini belgilaydi. 
