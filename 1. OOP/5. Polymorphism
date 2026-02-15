@@ -1,0 +1,144 @@
+# Ish Vaqtida Polimorfizm (Runtime Polymorphism) va U bilan Bog‘liq Tushunchalar
+
+Ish vaqtida polimorfizm (runtime polymorphism) Java’da obyektlar ish vaqtida (runtime) yaratilganda va metodlar class obyektlari orqali chaqirilganda sodir bo‘ladi. Java kompilyatori kompilyatsiya vaqtida qaysi metod chaqirilishini aniq bilmaydi, shuning uchun JVM (Java Virtual Machine) ish vaqtida mos metodni aniqlaydi va chaqiradi. Bu jarayon dinamik polimorfizm deb ham ataladi.
+
+Quyida ish vaqtida polimorfizm bilan bog‘liq asosiy tushunchalar, shu jumladan metodni qayta aniqlash, kovariant qaytarish turi, metodni yashirish, classni aylantirish va boshqa atamalar o‘zbek tilida tushuntiriladi.
+
+## 1. Metodni Qayta Aniqlash (Method Overriding)
+Metodni qayta aniqlash voris classning ota-classda mavjud metodni o‘ziga xos tarzda qayta yozishini anglatadi. Bu ish vaqtida polimorfizmning asosiy mexanizmidir. Metodni qayta aniqlashda `@Override` annotatsiyasi ishlatiladi.
+
+**Qoidalar:**
+- Metodning nomi, parametrlar ro‘yxati va qaytarish turi ota-classdagi bilan bir xil bo‘lishi kerak.
+- Access modifikatori ota-classdagidan kamroq cheklovchi bo‘lishi mumkin (masalan, `protected` → `public`).
+- Qayta aniqlangan metod ota-classdagi metodning xatti-harakatini o‘zgartiradi.
+
+**Misol:**
+```java
+class Hayvon {
+    void ovozChiqar() {
+        System.out.println("Hayvon ovoz chiqaradi");
+    }
+}
+
+class Kuchuk extends Hayvon {
+    @Override
+    void ovozChiqar() {
+        System.out.println("Kuchuk: Vov-vov!");
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Hayvon hayvon = new Kuchuk();
+        hayvon.ovozChiqar(); // Natija: Kuchuk: Vov-vov!
+    }
+}
+```
+
+## 2. Kovariant Qaytarish Turi (Covariant Return Type)
+Kovariant qaytarish turi Java 5 dan boshlab qo‘llab-quvvatlanadi va qayta aniqlangan metodning qaytarish turi ota-classdagi metodning qaytarish turining vorisi bo‘lishiga ruxsat beradi.
+
+**Misol:**
+```java
+class Hayvon {
+    Hayvon klonlash() {
+        return this;
+    }
+}
+
+class Kuchuk extends Hayvon {
+    @Override
+    Kuchuk klonlash() { // Kovariant qaytarish turi
+        return new Kuchuk();
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Hayvon hayvon = new Kuchuk();
+        Hayvon klon = hayvon.klonlash(); // Kuchuk obyektini qaytaradi
+    }
+}
+```
+
+## 3. Metodning Ortiqcha Yuklanishi va Qayta Aniqlash O‘rtasidagi Farqlar
+| **Xususiyat**                | **Metodning Ortiqcha Yuklanishi (Overloading)** | **Metodni Qayta Aniqlash (Overriding)** |
+|------------------------------|-----------------------------------------------|----------------------------------------|
+| **Turi**                    | Statik polimorfizm (kompilyatsiya vaqtida)     | Dinamik polimorfizm (ish vaqtida)      |
+| **Joylashuvi**              | Bir xil classda                                 | Ota-class va voris classda               |
+| **Imzo**                    | Turli parametrlar yoki soni                    | Bir xil imzo (nom va parametrlar)      |
+| **Qaytarish turi**          | Har xil bo‘lishi mumkin                       | Bir xil yoki kovariant bo‘lishi kerak  |
+| **Annotatsiya**             | `@Override` talab qilinmaydi                  | `@Override` tavsiya qilinadi            |
+
+## 4. Metodni Yashirish (Method Hiding)
+Metodni yashirish statik metodlar ota-classdan voris classda qayta aniqlanganda sodir bo‘ladi. Statik metodlar polimorfik tarzda ishlamaydi, shuning uchun voris classdagi statik metod ota-classdagi statik metodni “yashiradi”.
+
+**Misol:**
+```java
+class Otaclass {
+    static void metod() {
+        System.out.println("Ota-class statik metodi");
+    }
+}
+
+class Vorisclass extends Otaclass {
+    static void metod() {
+        System.out.println("Voris-class statik metodi");
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Otaclass obj = new Vorisclass();
+        obj.metod(); // Natija: Ota-class statik metodi
+    }
+}
+```
+
+## 5. classni Aylantirish (Class Casting)
+classni aylantirish obyektni bir class turidan boshqa class turiga o‘zgartirishni anglatadi. Bu ikki turga bo‘linadi: **upcasting** va **downcasting**.
+
+### a) Upcasting
+Upcasting voris class obyektini ota-class turiga aylantirishdir. Bu avtomatik ravishda sodir bo‘ladi va xavfsizdir.
+
+**Misol:**
+```java
+class Hayvon {}
+class Kuchuk extends Hayvon {}
+
+public class Main {
+    public static void main(String[] args) {
+        Kuchuk kuchuk = new Kuchuk();
+        Hayvon hayvon = kuchuk; // Upcasting
+    }
+}
+```
+
+### b) Downcasting
+Downcasting ota-class turidagi obyektni voris class turiga aylantirishdir. Bu qo‘lda amalga oshiriladi va xato (ClassCastException) yuzaga kelishi mumkin, agar obyekt haqiqiy voris classga tegishli bo‘lmasa.
+
+**Misol:**
+```java
+class Hayvon {}
+class Kuchuk extends Hayvon {}
+
+public class Main {
+    public static void main(String[] args) {
+        Hayvon hayvon = new Kuchuk();
+        Kuchuk kuchuk = (Kuchuk) hayvon; // Downcasting
+    }
+}
+```
+
+### c) Generalizatsiya va Spesifikatsiya
+- **Generalizatsiya**: Obyektni umumiy (ota-class) tur sifatida ko‘rish (upcasting orqali).
+- **Spesifikatsiya**: Obyektni aniq (voris class) tur sifatida ko‘rish (downcasting orqali).
+
+**Misol:**
+```java
+Hayvon hayvon = new Kuchuk(); // Generalizatsiya (upcasting)
+Kuchuk kuchuk = (Kuchuk) hayvon; // Spesifikatsiya (downcasting)
+```
+
+## Xulosa
+Ish vaqtida polimorfizm Java’da dinamik metod chaqiruvlarini ta’minlaydi, bu esa vorislik va metodni qayta aniqlash orqali amalga oshiriladi. Kovariant qaytarish turi, metodni yashirish, classni aylantirish (upcasting va downcasting) kabi tushunchalar bu jarayonni yanada moslashuvchan qiladi. Metodning ortiqcha yuklanishi va qayta aniqlash o‘rtasidagi farqlarni tushunish dasturchilarga to‘g‘ri usuldan foydalanishga yordam beradi.
